@@ -22,12 +22,12 @@ class User
     private ?Media $media;
 
     //Getters et Setters
-    public function getId():?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id):self
+    public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
@@ -93,18 +93,18 @@ class User
     {
         return $this->status;
     }
-    
+
     public function setStatus(bool $status): self
     {
         $this->status = $status;
         return $this;
     }
-    
+
     public function isActive(): bool
     {
         return $this->active;
     }
-    
+
     public function setActive(bool $active): self
     {
         $this->active = $active;
@@ -115,13 +115,13 @@ class User
     {
         return $this->deleted;
     }
-    
+
     public function setDeleted(bool $deleted): self
     {
         $this->deleted = $deleted;
         return $this;
     }
-    
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -159,7 +159,7 @@ class User
     {
         return $this->media;
     }
-    
+
     public function setMedia(?Media $media): self
     {
         $this->media = $media;

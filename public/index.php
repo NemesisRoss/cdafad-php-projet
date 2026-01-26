@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 //gérer les routes
 
 include '../vendor/autoload.php';
