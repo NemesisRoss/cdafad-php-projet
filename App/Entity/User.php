@@ -18,7 +18,7 @@ class User extends Entity
     private bool $active = true;
     private bool $deleted = false;
     private string $roles;
-    private \DateTimeImmutable $createdAt;
+    private \DateTimeImmutable|string $createdAt;
     private ?\DateTimeImmutable $updatedAt;
     private ?\DateTimeImmutable $deletedAt;
     private ?Media $media;
@@ -141,7 +141,7 @@ class User extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable|string $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;

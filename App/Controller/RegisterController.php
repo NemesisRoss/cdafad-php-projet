@@ -48,16 +48,15 @@ class RegisterController extends AbstractController
                         //ajout en BDD
                         $this->userRepository->save($user);
                         $data["msg"] = "Le compte a été ajouté en BDD";
-                    } else 
-                    {
-                         $data["msg"] = "Le compte existe déjà en BDD";
+                    } else {
+                        $data["msg"] = "Le compte existe déjà en BDD";
                     }
-                } 
+                }
                 //Sinon les champs ne sont pas identiques
                 else {
                     $data["msg"] = "Les mots de passe ne sont pas identiques";
                 }
-            } 
+            }
             //Sinon les champs ne sont pas remplis 
             else {
                 $data["msg"] = "Veuillez remplir les champs du formulaire";
@@ -69,7 +68,35 @@ class RegisterController extends AbstractController
     //Méthode pour se connecter
     public function login(): mixed
     {
-        return $this->render("login", "Se connecter");
+        $data = [];
+        //Test si le formulaire est submit
+        if ($this->isFormSubmitted($_POST,  "submit")) {
+            //Test si les champs sont remplis
+            if (!empty($_POST["email"]) && !empty($_POST["password"])) {
+                //Test si le compte n'existe pas déja
+                if ($user = $this->userRepository->findByEmail($_POST["email"])) {
+                    //Nettoyage des données
+                    Tools::sanitize_array($_POST);
+                    if (password_verify($_POST["password"], $user->getPassword())) {
+                        session_start();
+                        $_SESSION['user'] = [
+                            'id' => $_POST["id"],
+                            'pseudo' => $_POST["pseudo"],
+                            'email' => $_POST["email"],
+                            'roles' => $_POST["roles"]
+                        ];
+                        header('Location: /');
+                    } else {
+                        $data["msg"] = "Les identifiants ne correpondent pas.";
+                    }
+                }
+                //Sinon les champs ne sont pas remplis 
+                else {
+                    $data["msg"] = "Veuillez remplir les champs du formulaire";
+                }
+            }
+        }
+        return $this->render("login", "Se connecter", $data);
     }
 
     //Méthode pour se connecter

@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Europe/Paris');
+
 session_start();
 
 //gérer les routes
@@ -15,10 +17,12 @@ $dotenv->load();
 //import des controllers
 use App\Controller\HomeController;
 use App\Controller\RegisterController;
+use App\Controller\CategoryController;
 
 //instancier les controllers
 $homeController = new HomeController();
 $registerController = new RegisterController();
+$CategoryController = new CategoryController();
 
 //Analyse de l'URL avec parse_url() et retourne ses composants
 $url = parse_url($_SERVER['REQUEST_URI']);
@@ -38,6 +42,9 @@ switch ($path) {
         break;
     case '/logout':
         $registerController->logout();
+        break;
+    case '/add_category':
+        $CategoryController->addCategory();
         break;
     default:
         echo "erreur 404";

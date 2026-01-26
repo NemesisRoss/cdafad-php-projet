@@ -9,10 +9,9 @@
 </head>
 <body>
     <main class="container-fluid">
-        <h1>Se connecter</h1>
+        <h1>Creer une nouvelle catégorie</h1>
         <form action="" method="post">
-            <input type="email" name="email" placeholder="Saisir votre email" required>
-            <input type="password" name="password" placeholder="Saisir votre mot de passe" required>
+            <input type="text" name="name" placeholder="Saisir le nom de la catégorie" required>
             <input type="submit" value="Connexion" name="submit">
         </form>
         <p><?= $data["msg"] ?? ""  ?></p>
