@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Repository\AbstractRepository;
-use App\Entity\EntityInterface;
+use App\Entity\Entity;
 use App\Entity\User;
 use App\Entity\Media;
 
@@ -19,7 +19,7 @@ class UserRepository extends AbstractRepository
         return [];
     }
 
-    public function save(EntityInterface $entity): ?User
+    public function save(Entity $entity): ?User
     {
         try {
             //2 Ecrire la requête SQL
