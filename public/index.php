@@ -5,9 +5,17 @@ session_start();
 //gérer les routes
 
 include '../vendor/autoload.php';
+//Import des ressources
+//fichier .env
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable("../");
+$dotenv->load();
+
 //import des controllers
 use App\Controller\HomeController;
 use App\Controller\RegisterController;
+
 
 //instancier les controllers
 $homeController = new HomeController();
