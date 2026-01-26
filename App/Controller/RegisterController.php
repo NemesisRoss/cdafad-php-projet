@@ -12,6 +12,7 @@ class RegisterController extends AbstractController
 {
     private UserRepository $userRepository;
 
+    //Injection du UserRepository
     public function __construct()
     {
         $this->userRepository = new UserRepository();
