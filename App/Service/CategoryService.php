@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Service;
+
+use App\Entity\Entity;
+use App\Entity\Category;
+use App\Repository\CategoryRepository;
+use App\Utils\Tools;
+
+class CategoryService
+{
+    //Attributs
+    private CategoryRepository $categoryRepository;
+
+    //Constructeur
+    public function __construct()
+    {
+        $this->categoryRepository = new CategoryRepository();
+    }
+
+    //Méthodes
+    public function saveCategory(array $post): string
+    {
+        //Test si les champs sont remplis
+        if (empty($post["name"])) {
+            return "Veuillez remplir tous les champs du formulaire.";
+        }
+
+        //Nettoyage
+        Tools::sanitize_array($post);
+
+        //Test si la catégorie existe déja
+        if ($this->categoryRepository->isUserExists($post["name"])) {
+            return "La catégorie " . $post["name"] . " existe déjà en BDD.";
+        }
+        //Création d'un objet Category
+        $category = new Category($_POST["name"]);
+        $category->setCreatedAt(new \DateTimeImmutable());
+        
+        //Ajout en BDD
+        $this->categoryRepository->save($category);
+
+        return "La catégorie a été ajouté en BDD.";
+    }
+}
