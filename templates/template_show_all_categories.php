@@ -13,7 +13,15 @@
     <!-- Import du menu -->
     <?php include 'components/component_navbar.php'; ?>
     <main class="container-fluid">
-        <h1>Bienvenue sur le projet quizz</h1>
+        <h1>Se connecter</h1>
+        <form action="" method="post">
+            <select name="list" id="">
+                <option value="">--Veuillez choisir une option--</option>
+                <?= $options[0] ?? ""  ?>
+            </select>
+            <input type="submit" value="Connexion" name="submit">
+        </form>
+        <p><?= $data["msg"] ?? ""  ?></p>
     </main>
     <!-- Import du footer -->
     <?php include 'components/component_footer.php'; ?>

@@ -15,7 +15,23 @@ class CategoryRepository extends AbstractRepository
 
     public function findAll(): array
     {
-        return [];
+        try {
+            //2 Ecrire la requête SQL
+            $sql = "SELECT c.name FROM category AS c";
+            //3 Préparer la requête
+            $req = $this->connect->prepare($sql);
+            //4 exécuter la requête
+            $req->execute();
+            //5 récupérer la réponse (SELECT)
+            $categories = $req->fetchAll();
+            if (empty($categories)) {
+                return [];
+            } else {
+                return $categories;
+            }
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     public function save(Entity $entity): ?Category
@@ -52,8 +68,8 @@ class CategoryRepository extends AbstractRepository
             //5 exécuter la requête
             $req->execute();
             //6 récupérer la réponse (SELECT)
-            $user = $req->fetch();
-            if (empty($user)) {
+            $category = $req->fetch();
+            if (empty($category)) {
                 return false;
             } else {
                 return true;

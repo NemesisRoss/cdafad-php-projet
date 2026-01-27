@@ -7,15 +7,18 @@ use App\Utils\Tools;
 use App\Repository\CategoryRepository;
 use App\Entity\Category;
 use App\Entity\EntityInterface;
+use App\Service\CategoryService;
 
 class CategoryController extends AbstractController
 {
     private CategoryRepository $categoryRepository;
+    private CategoryService $categoryService;
 
     //Injection du UserRepository
     public function __construct()
     {
         $this->categoryRepository = new CategoryRepository();
+        $this->categoryService = new CategoryService();
     }
 
     public function addCategory()
@@ -48,5 +51,21 @@ class CategoryController extends AbstractController
             }
         }
         return $this->render("add_category", "Creer une catégorie", $data);
+    }
+
+    public function showAllCategories()
+    {
+        $categories = $this->categoryService->getAllCategories();
+        $options = [];
+        if (gettype($categories) == "string") {
+            $options[0] = $categories;
+        } else {
+            foreach ($categories as $key => $category) {
+                $options[0] =  $options[0] . "<option value=''>" . $category['name'] . "</option>";
+                dump($options[0]);
+            }
+        }
+
+        return $this->render("show_all_categories", "Afficher la liste des categories", $options);
     }
 }

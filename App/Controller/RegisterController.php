@@ -80,10 +80,10 @@ class RegisterController extends AbstractController
                     if (password_verify($_POST["password"], $user->getPassword())) {
                         session_start();
                         $_SESSION['user'] = [
-                            'id' => $_POST["id"],
-                            'pseudo' => $_POST["pseudo"],
-                            'email' => $_POST["email"],
-                            'roles' => $_POST["roles"]
+                            'id' => $user->getId(),
+                            'pseudo' => $user->getPseudo(),
+                            'email' => $user->getEmail(),
+                            'roles' => $user->getRoles()
                         ];
                         header('Location: /');
                     } else {

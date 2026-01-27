@@ -43,8 +43,11 @@ switch ($path) {
     case '/logout':
         $registerController->logout();
         break;
-    case '/add_category':
+    case '/category/add':
         $CategoryController->addCategory();
+        break;
+    case '/category/show':
+        $CategoryController->showAllCategories();
         break;
     default:
         echo "erreur 404";
