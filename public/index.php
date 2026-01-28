@@ -63,6 +63,8 @@ $router->map(Route::controller('GET', '/category/all', App\Controller\CategoryCo
 $router->map(Route::controller('GET', '/quizz/add', App\Controller\QuizzController::class, 'addQuizz'));
 $router->map(Route::controller('POST', '/quizz/add', App\Controller\QuizzController::class, 'addQuizz'));
 $router->map(Route::controller('GET', '/logout', App\Controller\RegisterController::class, 'logout'));
+$router->map(Route::controller('GET', '/upload', App\Controller\HomeController::class, 'testUpload'));
+$router->map(Route::controller('POST', '/upload', App\Controller\HomeController::class, 'testUpload'));
 try  {
     $router->dispatch();
 } catch(RouteNotFoundException $re) {

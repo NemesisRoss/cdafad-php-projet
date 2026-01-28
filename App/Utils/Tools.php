@@ -45,7 +45,7 @@ class Tools
      */
     public static function getFileExtension($file)
     {
-        return substr(strrchr($file, '.'), 1);
+        return strtolower(substr(strrchr($file, '.'), 1));
     }
 
     /**
