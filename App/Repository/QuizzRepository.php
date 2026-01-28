@@ -34,10 +34,14 @@ class QuizzRepository extends AbstractRepository
             $req->bindValue(4, $entity->getAuthor()->getId(), \PDO::PARAM_INT);
             //4 Exécuter la requête
             $req->execute();
+            
             //5 récupérer l'id
             $id = $this->connect->lastInsertId();
             $entity->setId($id);
-        } catch(\PDOException $e){}
+
+        } catch(\PDOException $e){
+            echo $e->getMessage();
+        }
         return $entity;
     }
 
@@ -58,7 +62,9 @@ class QuizzRepository extends AbstractRepository
                 $req->execute();
             }
             //5 récupérer l'id
-        } catch(\PDOException $e) {}
+        } catch(\PDOException $e) {
+            echo $e->getMessage();
+        }
     }
 
     public function save(Entity $entity): Quizz 

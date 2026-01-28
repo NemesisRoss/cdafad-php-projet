@@ -42,7 +42,7 @@ title VARCHAR(50) NOT NULL,
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 author_id INT NOT NULL,
-media_id INT NOT NULL
+media_id INT
 )ENGINE=InnoDB;
 
 CREATE TABLE score(
@@ -73,8 +73,7 @@ ON DELETE CASCADE;
 ALTER TABLE quizz
 ADD CONSTRAINT fk_illustrate_media
 FOREIGN KEY(media_id)
-REFERENCES users(id)
-ON DELETE CASCADE;
+REFERENCES media(id);
 
 ALTER TABLE quizz_category
 ADD CONSTRAINT fk_tag_category

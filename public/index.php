@@ -16,11 +16,13 @@ $dotenv->load();
 use App\Controller\HomeController;
 use App\Controller\RegisterController;
 use App\Controller\CategoryController;
+use App\Controller\QuizzController;
 
 //instancier les controllers
 $homeController = new HomeController();
 $registerController = new RegisterController();
 $categoryController = new CategoryController();
+$quizzController = new QuizzController();
 
 //Analyse de l'URL avec parse_url() et retourne ses composants
 $url = parse_url($_SERVER['REQUEST_URI']);
@@ -43,6 +45,9 @@ switch ($path) {
         break;
     case '/category/all':
         $categoryController->showAllCategories();
+        break;
+    case '/quizz/add':
+        $quizzController->addQuizz();
         break;
     case '/logout':
         $registerController->logout();
