@@ -9,16 +9,30 @@ use Dotenv\Parser\Entry;
 
 class QuizzRepository extends AbstractRepository
 {
+    /**
+     * Méthode pour retourne un Quizz par son id
+     * @param int $id du Quizz
+     * @return ?Quizz $quizz
+     */
     public function find(int $id): ?Quizz
     {
         return null;
     }
 
+    /**
+     * Méthode pour retourner un tableau de Quizz
+     * @return array<Quizz>
+     */
     public function findAll(): array
     {
         return [];
     }
 
+    /**
+     * Méthode pour ajouter un quizz en BDD
+     * @param Entity $entity objet Quizz
+     * @return Quizz retourne un Objet Quizz(avec son id)
+     */
     private function saveQuizz(Entity $entity): ?Quizz
     {
         try {
@@ -45,6 +59,12 @@ class QuizzRepository extends AbstractRepository
         return $entity;
     }
 
+    /**
+     * Méthode pour ajouter les categories au quizz
+     * dans la table quizz_category
+     * @param Quizz $quizz
+     * @return void
+     */
     private function saveCategories(Quizz $quizz): void
     {
         try {
@@ -67,6 +87,11 @@ class QuizzRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Méthode pour ajouter un quizz et ces categories en BDD
+     * @param Entity Quizz $quizz
+     * @return Quizz $quizz
+     */
     public function save(Entity $entity): Quizz 
     {
         try {
