@@ -8,6 +8,7 @@
             <!-- Menu Utilisateur connecté (ROLE_USER ou ROLE_ADMIN) -->
             <?php if (isset($_SESSION["user"]["roles"])) :?>
             <li><a href="/category/add">Ajouter une categorie</a></li>
+            <li><a href="/quizz/add">Ajouter un quizz</a></li>
             <li><a href="/logout">Déconnexion</a></li>
             <!-- Menu Utilisateur déconnecté (VISITEUR) -->
             <?php else : ?>

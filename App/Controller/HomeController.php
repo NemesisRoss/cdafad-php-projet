@@ -10,4 +10,9 @@ class HomeController extends AbstractController
     {
         return $this->render("home","Accueil");
     }
+
+    public function test(int $nbr) 
+    {
+        echo "valeur saisie " . $nbr;
+    }
 }

@@ -4,11 +4,9 @@ namespace App\Service;
 
 use App\Entity\Category;
 use App\Entity\Quizz;
-use App\Entity\Entity;
 use App\Entity\User;
 use App\Entity\Media;
 use App\Utils\Tools;
-use App\Repository\CategoryRepository;
 use App\Repository\QuizzRepository;
 
 class QuizzService
@@ -20,6 +18,11 @@ class QuizzService
         $this->quizzRepository = new QuizzRepository();
     }
 
+    /**
+     * Méthode pour ajouter un quizz en BDD (logique métier)
+     * @param array $post (super globale $_POST)
+     * @return string $msg 
+     */
     public function addQuizz(array $post): string 
     {
         //Test si les champs obligatoires sont remplis
@@ -43,7 +46,12 @@ class QuizzService
 
         return "Le quizz " . $quizz->getTitle() . " a été ajouté en BDD";
     }
-
+    /**
+     * Méthode pour setter le tableau de Category au Quizz
+     * @param Quizz $quizz
+     * @param array $categories tableau id Category
+     * @return Quizz $quizz
+     */
     private function createCategories(Quizz $quizz, array $categories): Quizz 
     {
 
@@ -56,6 +64,11 @@ class QuizzService
         return $quizz;
     }
 
+    /**
+     * Méthode pour hydrater un Quizz
+     * @param array $post (super globale POST)
+     * @return Quizz $quizz objet Quizz hydraté
+     */
     private function createQuizz(array $post): Quizz
     {
         //Créer un objet Quizz

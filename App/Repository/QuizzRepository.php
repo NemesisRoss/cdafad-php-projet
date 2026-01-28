@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Repository\AbstractRepository;
 use App\Entity\Entity;
 use App\Entity\Quizz;
-use Dotenv\Parser\Entry;
 
 class QuizzRepository extends AbstractRepository
 {

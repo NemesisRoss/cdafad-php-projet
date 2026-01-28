@@ -6,6 +6,8 @@ use App\Entity\Entity;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use App\Utils\Tools;
+use Mithridatem\Validation\Validator;
+use Mithridatem\Validation\Exception\ValidationException;
 
 class CategoryService
 {
@@ -38,6 +40,13 @@ class CategoryService
         $category = new Category($_POST["name"]);
         $category->setCreatedAt(new \DateTimeImmutable());
         
+        try {
+            $this->validateCategory($category);
+
+        } catch(ValidationException $ve) {
+            return $ve->getMessage();
+        }
+
         //Ajout en BDD
         $this->categoryRepository->save($category);
 
@@ -50,4 +59,14 @@ class CategoryService
         return empty($categories)? 'liste vide' : $categories;
     }
 
+    /**
+     * Méthode pour valider une category
+     * @return void
+     * @throws ValidationException
+     */
+    private function validateCategory(Category $category): void
+    {
+        $validator = new Validator();
+        $validator->validate($category);
+    }
 }

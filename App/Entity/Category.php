@@ -3,15 +3,18 @@
 namespace App\Entity;
 
 use App\Entity\Entity;
+use Mithridatem\Validation\Attributes\NotBlank;
+use Mithridatem\Validation\Attributes\Length;
 
 class Category extends Entity
 {
     //Attributs
     private ?int $id;
+    #[NotBlank]
+    #[Length(2, 50)]
     private string $name;
     private \DateTimeImmutable $createdAt;
     private ?\DateTimeImmutable $updatedAt;
-
 
     //Constructeur
     public function __construct(string $name = "")
