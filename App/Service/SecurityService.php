@@ -43,7 +43,7 @@ class SecurityService
         ) {
             return "Veuillez remplir les champs du formulaire";
         }
-        
+
         //Nettoyage des données
         Tools::sanitize_array($_POST);
 
@@ -72,28 +72,28 @@ class SecurityService
             //Instance du Validator
             $validator = new Validator();
             $validator->validate($user);
-
-        } catch(ValidationException $e) {
+        } catch (ValidationException $e) {
             return $e->getMessage();
         }
 
         //Hash du passwords
         $hash = password_hash($user->getPassword(), PASSWORD_DEFAULT);
         $user->setPassword($hash);
+
         //test si le media existe
         if (isset($_FILES["img"]) && !empty($_FILES["img"]["tmp_name"])) {
             try {
                 //Import du fichier
                 $media = $this->mediaService->addMedia($_FILES["img"]);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 echo $e->getMessage();
             }
-        } 
+        }
         //Image par default
         else {
             $media = $this->mediaService->getDefaultImg();
         }
-        
+
         $user->setMedia($media);
 
         //ajout en BDD
@@ -132,5 +132,17 @@ class SecurityService
             "img" => $user->getMedia()
         ];
         return "Connecté";
+    }
+
+    public function getProfil(): User
+    {
+        $user = new User();
+
+        $user->setEmail($_SESSION["user"]["email"]);
+        $user->setPseudo($_SESSION["user"]["pseudo"]);
+        $user->setRoles($_SESSION["user"]["roles"]);
+        $user->setMedia($_SESSION["user"]["img"]);
+
+        return $user;
     }
 }

@@ -12,11 +12,12 @@
     <!-- Import du menu -->
     <?php include 'components/component_navbar.php'; ?>
     <main class="container-fluid">
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             <h1>Ajouter un quizz</h1>
             <input type="text" name="title" placeholder="Saisir le titre">
             <textarea name="description" placeholder="Saisir la description"></textarea>
             <?php include 'components/component_all_categories.php';?>
+            <input type="file" name="img">
             <input type="submit" value="Ajouter" name="submit">
             <p><?= $data["msg"] ?? "" ?></p>
         </form>

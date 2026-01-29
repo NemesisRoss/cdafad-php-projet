@@ -19,7 +19,7 @@ class RegisterController extends AbstractController
     public function register(): mixed
     {
         $data = [];
-        
+
         //Test si le formulaire est submit
         if ($this->isFormSubmitted($_POST,  "submit")) {
             //Ajout du compte en BDD
@@ -49,5 +49,13 @@ class RegisterController extends AbstractController
         session_destroy();
         header('Location: /');
         exit;
+    }
+
+    public function showProfil()
+    {
+        $data = [];
+        $data = $this->securityService->getProfil();
+
+        return $this->render("profil", "Profil", $data);
     }
 }

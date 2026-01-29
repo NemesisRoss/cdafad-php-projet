@@ -14,10 +14,12 @@
     <!-- Import du menu -->
     <?php include 'components/component_navbar.php'; ?>
     <main class="container-fluid">
-        <h1>Bienvenue sur le projet quizz</h1>
+        <p><?= $data->getEmail ?? "" ?></p>
+        <p><?= $data["msg"] ?? "" ?></p>
     </main>
     <!-- Import du footer -->
-    <?php include 'components/component_footer.php'; dump($_SESSION["user"]["img"]["url"]) ?>
+    <?php include 'components/component_footer.php'; ?>
+</body>
 </body>
 
 </html>

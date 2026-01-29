@@ -10,14 +10,17 @@ use App\Utils\Tools;
 use App\Repository\QuizzRepository;
 use Mithridatem\Validation\Validator;
 use Mithridatem\Validation\Exception\ValidationException;
+use App\Service\MediaService;
 
 class QuizzService
 {
     //Attributs
     private QuizzRepository $quizzRepository;
+    private MediaService $mediaService;
 
     public function __construct() {
         $this->quizzRepository = new QuizzRepository();
+        $this->mediaService = new MediaService();
     }
 
     /**
@@ -94,6 +97,22 @@ class QuizzService
         $author->setId($_SESSION["user"]["id"]);
         //Setter l'author (User connecté)
         $quizz->setAuthor($author);
+
+        //test si le media existe
+        if (isset($_FILES["img"]) && !empty($_FILES["img"]["tmp_name"])) {
+            try {
+                //Import du fichier
+                $media = $this->mediaService->addMedia($_FILES["img"]);
+            } catch(\Exception $e) {
+                echo $e->getMessage();
+            }
+        } 
+        //Image par default
+        else {
+            $media = $this->mediaService->getDefaultImg();
+        }
+        
+        $quizz->setMedia($media);
 
         return $quizz;
     }
