@@ -1,0 +1,27 @@
+meta {
+  name: test
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://127.0.0.1:8000/api/test
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    
+    
+  }
+}
+
+body:file {
+  ~file: @file()
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

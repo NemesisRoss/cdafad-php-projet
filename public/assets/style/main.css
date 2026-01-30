@@ -7,3 +7,25 @@ form{
         text-align: center;
     }
 }
+
+.error{
+    color: #c62828;
+    font-weight: 600;
+    display: block;
+    margin-top: 4px;
+}
+
+.success{
+    color: #2e7d32;
+    font-weight: 600;
+    display: block;
+    margin-top: 4px;
+}
+
+.profil-img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}

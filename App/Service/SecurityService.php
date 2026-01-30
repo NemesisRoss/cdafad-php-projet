@@ -2,136 +2,154 @@
 
 namespace App\Service;
 
-use App\Entity\Entity;
 use App\Entity\User;
-use App\Entity\Media;
 use App\Utils\Tools;
 use App\Repository\UserRepository;
 use Mithridatem\Validation\Validator;
 use Mithridatem\Validation\Exception\ValidationException;
 use App\Service\MediaService;
-use DateTime;
-use DateTimeImmutable;
+use App\Utils\Logger;
 
 class SecurityService
 {
-    //Attribut
     private UserRepository $userRepository;
     private MediaService $mediaService;
 
-    //Constructeur
     public function __construct()
     {
         $this->userRepository = new UserRepository();
         $this->mediaService = new MediaService();
     }
 
-    //Méthodes
     /**
-     * Méthode pour ajouter un compte en BDD
+     * Methode pour ajouter un compte en BDD
      * @param array $post (super globale POST)
-     * @return string $message de sortie
+     * @return array resultat (message + erreurs)
      */
-    public function saveUser(array $post): string
+    public function saveUser(array $post): array
     {
-        //Test si les champs ne sont pas remplis
-        if (
-            empty($_POST["pseudo"]) ||
-            empty($_POST["email"]) ||
-            empty($_POST["password"]) ||
-            empty($_POST["confirm-password"])
-        ) {
-            return "Veuillez remplir les champs du formulaire";
+        $errors = [];
+        if (empty($post["pseudo"])) {
+            $errors["pseudo"] = "Le pseudo est obligatoire";
+        }
+        if (empty($post["email"])) {
+            $errors["email"] = "L'email est obligatoire";
+        }
+        if (empty($post["password"])) {
+            $errors["password"] = "Le mot de passe est obligatoire";
+        }
+        if (empty($post["confirm-password"])) {
+            $errors["confirm-password"] = "La confirmation est obligatoire";
+        }
+        if (!empty($errors)) {
+            return ["errors" => $errors];
         }
 
-        //Nettoyage des données
-        Tools::sanitize_array($_POST);
+        Tools::sanitize_array($post);
 
-        //Sinon si les 2 mots de passe sont différents
-        if ($_POST["password"] != $_POST["confirm-password"]) {
-            return "Les mots de passe ne sont pas identiques";
+        if ($post["password"] != $post["confirm-password"]) {
+            return ["errors" => ["confirm-password" => "Les mots de passe ne sont pas identiques"]];
+        }
+        if (!filter_var($post["email"], FILTER_VALIDATE_EMAIL)) {
+            return ["errors" => ["email" => "L'email est invalide"]];
+        }
+        if ($this->userRepository->isUserExists($post["email"], $post["pseudo"])) {
+            return ["errors" => ["_form" => "Le compte existe deja en BDD"]];
         }
 
-        //Test si le compte existe déja
-        if ($this->userRepository->isUserExists($_POST["email"], $_POST["pseudo"])) {
-            return "Le compte existe déjà en BDD";
-        }
-
-        //créer un objet User
         $user = new User();
-        //Set des attributs
         $user
-            ->setEmail($_POST["email"])
-            ->setPseudo($_POST["pseudo"])
-            ->setFirstname($_POST["firstname"])
-            ->setLastname($_POST["lastname"])
-            ->setPassword($_POST["password"])
+            ->setEmail($post["email"])
+            ->setPseudo($post["pseudo"])
+            ->setFirstname($post["firstname"])
+            ->setLastname($post["lastname"])
+            ->setPassword($post["password"])
             ->setCreatedAt(new \DateTimeImmutable())
             ->setRoles("ROLE_USER");
         try {
-            //Instance du Validator
             $validator = new Validator();
             $validator->validate($user);
-        } catch (ValidationException $e) {
-            return $e->getMessage();
+        } catch(ValidationException $e) {
+            return ["errors" => ["_form" => $e->getMessage()]];
         }
 
-        //Hash du passwords
         $hash = password_hash($user->getPassword(), PASSWORD_DEFAULT);
         $user->setPassword($hash);
-
-        //test si le media existe
+        
+        //Import de l'image
         if (isset($_FILES["img"]) && !empty($_FILES["img"]["tmp_name"])) {
             try {
-                //Import du fichier
                 $media = $this->mediaService->addMedia($_FILES["img"]);
-            } catch (\Exception $e) {
-                echo $e->getMessage();
+            } catch(\Exception $e) {
+                Logger::error("SecurityService.addMedia failed", ["error" => $e->getMessage()]);
+                return ["errors" => ["img" => "Erreur lors de l'upload de l'image"]];
             }
+        } else {
+            $media = $this->mediaService->getDefaultImg(1);
         }
-        //Image par default
-        else {
-            $media = $this->mediaService->getDefaultImg();
-        }
-
+        //Set du media au user
         $user->setMedia($media);
 
-        //ajout en BDD
-        $this->userRepository->save($user);
-        return "Le compte a été ajouté en BDD";
+        if ($this->userRepository->save($user) === null) {
+            return ["errors" => ["_form" => "Erreur lors de la creation du compte"]];
+        }
+        return ["message" => "Le compte a ete ajoute en BDD"];
     }
 
     /**
-     * Méthode pour se connecter
+     * Methode pour se connecter
      * @param array $post (super globale POST)
-     * @return string $message de sortie
+     * @return array resultat (message + erreurs)
      */
-    public function authenticate(array $post): string
+    public function authenticate(array $post): array
     {
-        //Test si les champs sont remplis
-        if (empty($_POST["email"]) || empty($_POST["password"])) {
-            return "Veuillez remplir tous les champs du formulaire";
+        $errors = [];
+        if (empty($post["email"])) {
+            $errors["email"] = "L'email est obligatoire";
+        }
+        if (empty($post["password"])) {
+            $errors["password"] = "Le mot de passe est obligatoire";
+        }
+        if (!empty($errors)) {
+            return ["errors" => $errors];
+        }
+        //nettoyage des entrées
+        Tools::sanitize_array($post);
+        
+        //récupération du compte
+        $user = $this->userRepository->findByEmail($post["email"]);
+
+        if (!isset($user) || !password_verify($post["password"], $user->getPassword())) {
+            return ["errors" => ["_form" => "Les informations de connexion sont invalides"]];
         }
 
-        //Nettoyer les entrées utilisateurs
-        Tools::sanitize_array($_POST);
-        //Récupérer le compte user
-        $user = $this->userRepository->findByEmail($_POST["email"]);
-
-        //Test si le compte existe ou le mot de passe invalide
-        if (!isset($user) || !password_verify($_POST["password"], $user->getPassword())) {
-            return "Les informations de connexion sont invalides";
-        }
-
-        //Créer la session User
+        //Initialisation des roles
+        $roles = explode(',', $user->getRoles());
+        //Objet Media associé
+        $media = ["id"=>$user->getMedia()?->getId(),
+                  "url"=>$user->getMedia()?->getUrl(),
+                  "alt"=>$user->getMedia()?->getAlt()
+                ];
+        //Stockage des informations en session
         $_SESSION["user"] = [
             "id" => $user->getId(),
+            "firstname" => $user->getFirstname(),
+            "lastname" => $user->getLastname(),
             "email" => $user->getEmail(),
             "pseudo" => $user->getPseudo(),
-            "roles" => $user->getRoles(),
-            "img" => $user->getMedia()
+            "roles" => $roles,
+            "img"  => $media
         ];
-        return "Connecté";
+        
+        return ["message" => "Connecte"];
+    }
+
+    public function getProfil(): array 
+    {
+        if (!isset($_SESSION["user"])) {
+            throw new \Exception("Le profil n'existe pas"); 
+        }
+        return $_SESSION["user"];
     }
 
     public function getProfil(): User

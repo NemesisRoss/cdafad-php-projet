@@ -20,3 +20,10 @@ DATABASE_HOST=localhost
 ```bash
 php -S 127.0.0.1:8000 -t public
 ```
+
+## 6 Ajouter les variables d'environnement suivantes :
+```env
+UPLOAD_DIRECTORY="assets/img/"
+UPLOAD_SIZE_MAX=2097152
+UPLOAD_FORMAT_WHITE_LIST='["png", "jpeg", "jpg", "webp"]'
+```

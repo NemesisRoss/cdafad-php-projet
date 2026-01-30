@@ -5,97 +5,119 @@ namespace App\Service;
 use App\Entity\Category;
 use App\Entity\Quizz;
 use App\Entity\User;
-use App\Entity\Media;
 use App\Utils\Tools;
 use App\Repository\QuizzRepository;
 use Mithridatem\Validation\Validator;
 use Mithridatem\Validation\Exception\ValidationException;
 use App\Service\MediaService;
+use App\Utils\Logger;
 
 class QuizzService
 {
-    //Attributs
     private QuizzRepository $quizzRepository;
     private MediaService $mediaService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->quizzRepository = new QuizzRepository();
-        $this->mediaService = new MediaService();
+        $this->mediaService = new MediaService(); 
     }
 
     /**
-     * Méthode pour ajouter un quizz en BDD (logique métier)
+     * Methode pour ajouter un quizz en BDD (logique metier)
      * @param array $post (super globale $_POST)
-     * @return string $msg 
+     * @return array resultat (message + erreurs)
      */
-    public function addQuizz(array $post): string 
+    public function addQuizz(array $post): array
     {
-        //Test si les champs obligatoires sont remplis
-        if (empty($post["title"]) || empty($post["description"])) {
-            return "Les champs ne sont pas tous remplis";
+        $errors = [];
+        if (empty($post["title"])) {
+            $errors["title"] = "Le titre est obligatoire";
+        }
+        if (empty($post["description"])) {
+            $errors["description"] = "La description est obligatoire";
+        }
+        if (empty($post["categories"]) || !is_array($post["categories"])) {
+            $errors["categories"] = "Veuillez selectionner au moins une categorie";
+        }
+        if (!empty($errors)) {
+            return ["errors" => $errors];
         }
 
-        //Test si l'utilisateur est connecté
         if (!isset($_SESSION["user"])) {
-            return "L'utilisateur n'est pas connecté";
+            return ["errors" => ["_form" => "L'utilisateur n'est pas connecte"]];
         }
 
-        //Nettoyer les entrées utilisateur
         Tools::sanitize_array($post);
         
-        //Création de l'objet Quizz
+        //Hydratation en Objet Quizz
         $quizz = $this->createQuizz($post);
 
-        //Validation de l'entity Quizz
+        //Validation
         try {
             $validator = new Validator();
             $validator->validate($quizz);
         } catch(ValidationException $e) {
-            return $e->getMessage();
+            return ["errors" => ["_form" => $e->getMessage()]];
         }
 
-        //Ajout en BDD
-        $this->quizzRepository->save($quizz);
+        //Test si l'image existe
+        if (isset($_FILES["img"]) && !empty($_FILES["img"]["tmp_name"])) {
+            try {
+                $media = $this->mediaService->addMedia($_FILES["img"]);
+            } catch(\Exception $e) {
+                Logger::error("SecurityService.addMedia failed", ["error" => $e->getMessage()]);
+                return ["errors" => ["img" => "Erreur lors de l'upload de l'image"]];
+            }
+        } else {
+            $media = $this->mediaService->getDefaultImg(3);
+        }
 
-        return "Le quizz " . $quizz->getTitle() . " a été ajouté en BDD";
+        //Setter l'image du quizz
+        $quizz->setMedia($media);
+
+        // Persistance en BDD
+        $saved = $this->quizzRepository->save($quizz);
+        
+        if ($saved === null) {
+            return ["errors" => ["_form" => "Erreur lors de l'ajout du quizz"]];
+        }
+
+        return ["message" => "Le quizz " . $quizz->getTitle() . " a ete ajoute en BDD"];
     }
+
     /**
-     * Méthode pour setter le tableau de Category au Quizz
+     * Methode pour setter le tableau de Category au Quizz
      * @param Quizz $quizz
      * @param array $categories tableau id Category
      * @return Quizz $quizz
      */
-    private function createCategories(Quizz $quizz, array $categories): Quizz 
+    private function createCategories(Quizz $quizz, array $categories): Quizz
     {
-
-        foreach ($categories as $key => $value) {
-           $cat = new Category();
-           $cat->setId($value);
-           $quizz->addCategory($cat);
+        foreach ($categories as $value) {
+            $cat = new Category();
+            $cat->setId($value);
+            $quizz->addCategory($cat);
         }
 
         return $quizz;
     }
 
     /**
-     * Méthode pour hydrater un Quizz
+     * Methode pour hydrater un Quizz
      * @param array $post (super globale POST)
-     * @return Quizz $quizz objet Quizz hydraté
+     * @return Quizz $quizz objet Quizz hydrate
      */
     private function createQuizz(array $post): Quizz
     {
-        //Créer un objet Quizz
         $quizz = new Quizz();
         $quizz
             ->setTitle($post["title"])
             ->setDescription($post["description"])
             ->setCreatedAt(new \DateTimeImmutable());
-        //Ajout des categories
-        $quizz = $this->createCategories($quizz, $post["categories"]);
-        //Créer un User
+        $quizz = $this->createCategories($quizz, $post["categories"] ?? []);
         $author = new User();
         $author->setId($_SESSION["user"]["id"]);
-        //Setter l'author (User connecté)
         $quizz->setAuthor($author);
 
         //test si le media existe

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 abstract class AbstractController
 {
+    
     /**
      * Méthode pour rendre une vue avec un template
      * @param string $template Le nom du template à inclure
@@ -11,7 +12,7 @@ abstract class AbstractController
      * @param array $data Les données à passer au template
      * @return void
      */
-    public function render(string $template, ?string $title, array $data = []): void
+    protected function render(string $template, ?string $title, array $data = []): void
     {
         include __DIR__ . "/../../templates/template_" . $template . ".php";
     }
@@ -22,7 +23,7 @@ abstract class AbstractController
      * @param array $data Les données à passer au component
      * @return void
      */
-    public function renderComponent(string $component, array $data = []): void
+    protected function renderComponent(string $component, array $data = []): void
     {
         include __DIR__ . "/../../templates/components/component_" . $component . ".php";
     }
@@ -33,9 +34,11 @@ abstract class AbstractController
      * @param int $statusCode Le code de statut HTTP
      * @return void
      */
-    public function jsonResponse(array $data, int $statusCode = 200): void
+    protected function jsonResponse(array $data, int $statusCode = 200): void
     {
         http_response_code($statusCode);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
         echo json_encode($data, JSON_PRETTY_PRINT);
     }
     
@@ -44,8 +47,32 @@ abstract class AbstractController
      * @param array $post Les données POST
      * @return bool Vrai si le formulaire a été soumis, faux sinon
      */
-    public function isFormSubmitted(array $post, ?string $button = "submit"): bool
+    protected function isFormSubmitted(array $post, ?string $button = "submit"): bool
     {
         return isset($post[$button]);
+    }
+
+    /**
+     * Méthode qui retourne un token CSRF stable pour la session.
+     * @return string Le token CSRF
+     */
+    protected function getCsrfToken(): string
+    {
+        if (empty($_SESSION["csrf_token"])) {
+            $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION["csrf_token"];
+    }
+
+    /**
+     * Méthode qui vérifie le token CSRF reçu.
+     * @param array $post Les données POST
+     * @return bool Vrai si le token est valide, faux sinon
+     */
+    protected function isCsrfTokenValid(array $post): bool
+    {
+        $token = $post["csrf_token"] ?? "";
+        $sessionToken = $_SESSION["csrf_token"] ?? "";
+        return !empty($token) && !empty($sessionToken) && hash_equals($sessionToken, $token);
     }
 }

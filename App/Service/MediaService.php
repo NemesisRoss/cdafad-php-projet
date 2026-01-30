@@ -2,8 +2,6 @@
 
 namespace App\Service;
 
-use App\Utils\Tools;
-use App\Entity\Entity;
 use App\Entity\Media;
 use App\Repository\MediaRepository;
 use App\Service\UploadService;
@@ -23,21 +21,22 @@ class MediaService
     public function addMedia(array $files): Media 
     {
         try {
-            //uploader le media
             $mediaName  = $this->uploadService->uploadFile($files);
         } catch(UploadException $e) {
             throw new \Exception($e->getMessage());
         }
 
-        //Créer un objet Media
         $media = new Media($mediaName, $mediaName, new \DateTimeImmutable());
 
-        //Ajouter en BDD le media
-        return $this->mediaRepository->save($media);
+        $saved = $this->mediaRepository->save($media);
+        if ($saved === null) {
+            throw new \Exception("Erreur lors de l'enregistrement du média");
+        }
+        return $saved;
     }
 
-    public function getDefaultImg(): ?Media 
+    public function getDefaultImg(int $id): ?Media 
     {
-        return $this->mediaRepository->find(1);
+        return $this->mediaRepository->find($id);
     }
 }

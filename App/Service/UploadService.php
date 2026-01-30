@@ -8,12 +8,29 @@ use App\Service\Exception\UploadException;
 class UploadService
 {
     /**
-     * Constante du Service
+     * Attributs du service d'upload
      */
-    private const string UPLOAD_DIRECTORY = "assets/img/";
-    private const int UPLOAD_SIZE_MAX = 2097152;//2Mo soit 1024 * 1024 *2
-    private const array UPLOAD_FORMAT_WHITE_LIST = ["png", "jpeg", "jpg", "webp"];
+    private readonly string $uploadtarget;
+    private readonly int $uploadSizeMax;
+    private readonly string $uploadFormatWhiteList;
+    private array $uploadFormats;
+    private array $allowedMimes;
 
+    public function __construct()
+    {
+        //Initialisation des attributs (depuis le fichier .env)
+        $this->uploadtarget = rtrim($_ENV["UPLOAD_DIRECTORY"], "/\\") . DIRECTORY_SEPARATOR;
+        $this->uploadSizeMax = (int) $_ENV["UPLOAD_SIZE_MAX"];
+        $this->uploadFormatWhiteList = $_ENV["UPLOAD_FORMAT_WHITE_LIST"];
+        $this->uploadFormats = json_decode($this->uploadFormatWhiteList, true) ?? [];
+        $this->allowedMimes = [
+            "png" => "image/png",
+            "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "webp" => "image/webp"
+        ];
+    }
+    
     /**
      * Méthode pour uploader un fichier
      * @param array $files (super globale Files)
@@ -26,6 +43,12 @@ class UploadService
         //Test si le fichier est bien uplodé
         if ($this->isFileUploadCorrectly($files)) {
             throw new UploadException("Pas de fichier à importer");
+        }
+        if (!isset($files["error"]) || $files["error"] !== UPLOAD_ERR_OK) {
+            throw new UploadException("Erreur lors de l'upload du fichier");
+        }
+        if (!is_uploaded_file($files["tmp_name"])) {
+            throw new UploadException("Fichier uploadé invalide");
         }
 
         //test de la taille
@@ -40,14 +63,20 @@ class UploadService
         if (!$this->validateUploadFormat($ext)) {
             throw new UploadException("Le format " . $ext . " est invalide");
         }
+        
 
         //rename files
         $newName =  $this->renameFile($ext);
         $uploadTmp = $files["tmp_name"];
-        $uploadtarget = self::UPLOAD_DIRECTORY . $newName;
+        $uploadtarget = $this->uploadtarget . $newName;
 
         //move to Upload_directory
-        move_uploaded_file($uploadTmp, $uploadtarget);
+        if (!is_dir($this->uploadtarget) || !is_writable($this->uploadtarget)) {
+            throw new UploadException("Dossier d'upload introuvable ou non inscriptible");
+        }
+        if (!move_uploaded_file($uploadTmp, $uploadtarget)) {
+            throw new UploadException("Échec lors du déplacement du fichier");
+        }
         return $newName;
     }
 
@@ -68,7 +97,7 @@ class UploadService
      */
     private function validateUploadSize(array $files): bool
     {
-        return $files["size"] > self::UPLOAD_SIZE_MAX;
+        return $files["size"] > $this->uploadSizeMax;
     }
 
     /**
@@ -78,8 +107,13 @@ class UploadService
      */
     private function validateUploadFormat(string $ext): bool
     {
-        return in_array($ext, self::UPLOAD_FORMAT_WHITE_LIST);
+        if (empty($this->uploadFormats)) {
+            return false;
+        }
+        return in_array($ext, $this->uploadFormats, true);
     }
+
+   
 
     /**
      * Méthode pour renommer le fichier

@@ -1,4 +1,5 @@
-<html lang="en">
+<!doctype html>
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -14,12 +15,17 @@
     <!-- Import du menu -->
     <?php include 'components/component_navbar.php'; ?>
     <main class="container-fluid">
-        <p><?= $data->getEmail ?? "" ?></p>
-        <p><?= $data["msg"] ?? "" ?></p>
+        <article>
+            <header><strong>Profil : <?= $data["user"]["pseudo"] ?? "" ?></strong></header>
+            <img src="/assets/img/<?= $data["user"]["img"]["url"] ?? "" ?>" alt="<?= $data["user"]["img"]["alt"] ?? "" ?>" class="profil-img"/>
+            <p><?= "Prénom : " . $data["user"]["firstname"] ?? "" ?></p>
+            <p><?= "Nom : " . $data["user"]["lastname"] ?? "" ?></p>
+            <p><?= "Email : " . $data["user"]["email"] ?? "" ?></p>
+            <footer><strong>Role : <?= $data["user"]["roles"][0] ?? "" ?></strong></footer>
+        </article>
     </main>
     <!-- Import du footer -->
     <?php include 'components/component_footer.php'; ?>
-</body>
 </body>
 
 </html>

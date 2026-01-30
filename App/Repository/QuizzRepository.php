@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Repository\AbstractRepository;
 use App\Entity\Entity;
 use App\Entity\Quizz;
+use App\Utils\Logger;
 
 class QuizzRepository extends AbstractRepository
 {
@@ -46,6 +47,7 @@ class QuizzRepository extends AbstractRepository
             $req->bindValue(3, $entity->getCreatedAt()->format("Y-m-d"), \PDO::PARAM_STR);
             $req->bindValue(4, $entity->getAuthor()->getId(), \PDO::PARAM_INT);
             $req->bindValue(5, $entity->getMedia()->getId(), \PDO::PARAM_INT);
+            
             //4 Exécuter la requête
             $req->execute();
             
@@ -54,7 +56,8 @@ class QuizzRepository extends AbstractRepository
             $entity->setId($id);
 
         } catch(\PDOException $e){
-            echo $e->getMessage();
+            Logger::error("QuizzRepository.saveQuizz failed", ["error" => $e->getMessage()]);
+            return null;
         }
         return $entity;
     }
@@ -83,7 +86,7 @@ class QuizzRepository extends AbstractRepository
             }
             //5 récupérer l'id
         } catch(\PDOException $e) {
-            echo $e->getMessage();
+            Logger::error("QuizzRepository.saveCategories failed", ["error" => $e->getMessage()]);
         }
     }
 
@@ -92,14 +95,20 @@ class QuizzRepository extends AbstractRepository
      * @param Entity Quizz $quizz
      * @return Quizz $quizz
      */
-    public function save(Entity $entity): Quizz 
+    public function save(Entity $entity): ?Quizz 
     {
         try {
             //Créer le quizz
             $entity = $this->saveQuizz($entity);
+            if ($entity === null) {
+                return null;
+            }
             //Assigner les categories
             $this->saveCategories($entity);
-        } catch(\PDOException $e) {}
+        } catch(\PDOException $e) {
+            Logger::error("QuizzRepository.save failed", ["error" => $e->getMessage()]);
+            return null;
+        }
         return $entity;
     }
 }
