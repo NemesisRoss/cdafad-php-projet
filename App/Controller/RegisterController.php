@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Service\SecurityService;
-
+use App\Entity\Entity;
+use App\Entity\Media;
 class RegisterController extends AbstractController
 {
     private SecurityService $securityService;
@@ -64,5 +65,17 @@ class RegisterController extends AbstractController
         session_destroy();
         header('Location: /');
         exit;
+    }
+
+    public function showProfil(): mixed
+    {
+        $data = [];
+        try {
+            $data["user"] = $this->securityService->getProfil();
+        } catch(\Exception $e) {
+            $this->logout();
+        }
+
+        return $this->render("profil", "Profil utilisateur", $data);
     }
 }

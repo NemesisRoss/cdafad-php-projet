@@ -113,8 +113,10 @@ class SecurityService
         if (!empty($errors)) {
             return ["errors" => $errors];
         }
-
+        //nettoyage des entrées
         Tools::sanitize_array($post);
+        
+        //récupération du compte
         $user = $this->userRepository->findByEmail($post["email"]);
 
         if (!isset($user) || !password_verify($post["password"], $user->getPassword())) {
@@ -123,16 +125,30 @@ class SecurityService
 
         //Initialisation des roles
         $roles = explode(',', $user->getRoles());
-
+        //Objet Media associé
+        $media = ["id"=>$user->getMedia()?->getId(),
+                  "url"=>$user->getMedia()?->getUrl(),
+                  "alt"=>$user->getMedia()?->getAlt()
+                ];
         //Stockage des informations en session
         $_SESSION["user"] = [
             "id" => $user->getId(),
+            "firstname" => $user->getFirstname(),
+            "lastname" => $user->getLastname(),
             "email" => $user->getEmail(),
             "pseudo" => $user->getPseudo(),
             "roles" => $roles,
-            "img" => $user->getMedia()
+            "img"  => $media
         ];
         
         return ["message" => "Connecte"];
+    }
+
+    public function getProfil(): array 
+    {
+        if (!isset($_SESSION["user"])) {
+            throw new \Exception("Le profil n'existe pas"); 
+        }
+        return $_SESSION["user"];
     }
 }

@@ -43,6 +43,7 @@ $router->map(Route::controller('POST', '/quizz/add', App\Controller\QuizzControl
 $router->map(Route::controller('GET', '/logout', App\Controller\RegisterController::class, 'logout', ['ROLE_USER', 'ROLE_ADMIN']));
 $router->map(Route::controller('GET', '/upload', App\Controller\HomeController::class, 'testUpload'));
 $router->map(Route::controller('POST', '/upload', App\Controller\HomeController::class, 'testUpload'));
+$router->map(Route::controller('GET', '/profil', App\Controller\RegisterController::class, 'showProfil', ['ROLE_USER', 'ROLE_ADMIN']));
 
 try {
     $router->dispatch();

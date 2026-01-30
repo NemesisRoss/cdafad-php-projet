@@ -21,3 +21,11 @@ form{
     display: block;
     margin-top: 4px;
 }
+
+.profil-img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
