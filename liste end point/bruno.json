@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "liste end point",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,22 @@
+meta {
+  name: test envoi json
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://127.0.0.1:8000/api/test
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "test":"valeur"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

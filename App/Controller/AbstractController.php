@@ -5,7 +5,6 @@ namespace App\Controller;
 abstract class AbstractController
 {
     
-
     /**
      * Méthode pour rendre une vue avec un template
      * @param string $template Le nom du template à inclure
@@ -39,6 +38,7 @@ abstract class AbstractController
     {
         http_response_code($statusCode);
         header('Content-Type: application/json; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
         echo json_encode($data, JSON_PRETTY_PRINT);
     }
     
