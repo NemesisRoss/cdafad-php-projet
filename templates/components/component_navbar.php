@@ -15,6 +15,7 @@
             ?>
                 <li><a href="/category/add">Ajouter une categorie</a></li>
                 <li><a href="/quizz/add">Ajouter un quizz</a></li>
+                <li><a href="/profil">Profil</a></li>
                 <li><a href="/logout">Déconnexion</a></li>
                 <!-- Menu Utilisateur déconnecté (VISITEUR) -->
             <?php else : ?>
